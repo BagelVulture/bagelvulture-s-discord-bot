@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 import os
 
-TOKEN = os.getenv("DISCORD_TOKEN")
+from token import DISCORD_TOKEN as TOKEN
 
 intents = discord.Intents.default()
 intents.members = True
@@ -66,3 +66,4 @@ async def doom(interaction: discord.Interaction):
     await interaction.response.send_message("`I am BotVulture. I will be your doom.`")
 
 bot.run(TOKEN)
+
