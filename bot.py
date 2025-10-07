@@ -32,7 +32,6 @@ async def warn(interaction: discord.Interaction, user: discord.User, reason: str
         )
         return
 
-    # Fetch the member issuing the command
     member = interaction.guild.get_member(interaction.user.id)
     if not member:
         await interaction.response.send_message(
@@ -85,3 +84,4 @@ async def on_member_join(member: discord.Member):
         print("⚠ " + default_role + " channel not found.")
 
 bot.run(TOKEN)
+
