@@ -7,7 +7,8 @@ import os
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.default()
-intents.members = True  # Needed for role checks
+intents.members = True
+intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 # --- COMMAND TREE SETUP ---
@@ -25,8 +26,8 @@ async def on_ready():
 async def warn(interaction: discord.Interaction, user: discord.User, reason: str = None):
     # --- Check for Admin Role ---
     if not isinstance(interaction.user, discord.Member):
-    await interaction.response.send_message("This command can only be used in a server.")
-    return
+        await interaction.response.send_message("This command can only be used in a server.")
+        return
     
     admin_role = discord.utils.get(interaction.user.roles, name="admin")
 
@@ -47,3 +48,4 @@ async def warn(interaction: discord.Interaction, user: discord.User, reason: str
 
 # --- RUN BOT ---
 bot.run(TOKEN)
+
