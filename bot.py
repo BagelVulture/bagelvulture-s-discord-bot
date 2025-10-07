@@ -18,7 +18,7 @@ warnings_log = {}
 @bot.event
 async def on_ready():
     await bot.tree.sync()
-    print(f"✅ Logged in as {bot.user}")
+    print(f"Logged in as {bot.user}")
 
 @bot.tree.command(name="warn", description="Give a user a warning")
 @app_commands.describe(
@@ -63,7 +63,7 @@ async def warn(interaction: discord.Interaction, user: discord.User, reason: str
 
     await interaction.response.send_message(message)
 
-@bot.tree.command(name="doom", description="")
+@bot.tree.command(name="doom", description="doom")
 async def doom(interaction: discord.Interaction):
     await interaction.response.send_message("`I am BotVulture. I will be your doom.`")
 
@@ -84,4 +84,5 @@ async def on_member_join(member: discord.Member):
         print("⚠ " + default_role + " channel not found.")
 
 bot.run(TOKEN)
+
 
