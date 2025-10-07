@@ -1,51 +1,45 @@
-import discord
-from discord import app_commands
-from discord.ext import commands
-import os
-
-# --- SETUP ---
-TOKEN = os.getenv("DISCORD_TOKEN")
-
-intents = discord.Intents.default()
-intents.members = True
-intents.message_content = True
-bot = commands.Bot(command_prefix="!", intents=intents)
-
-# --- COMMAND TREE SETUP ---
-@bot.event
-async def on_ready():
-    await bot.tree.sync()
-    print(f"✅ Logged in as {bot.user}")
-
-# --- /warn COMMAND ---
-@bot.tree.command(name="warn", description="Warn a user with an optional reason (Admin only).")
+@bot.tree.command(name="warn", description="Warn a user with an optional reason")
 @app_commands.describe(
     user="The user to warn",
     reason="The reason for the warning (optional)"
 )
 async def warn(interaction: discord.Interaction, user: discord.User, reason: str = None):
-    # --- Check for Admin Role ---
-    if not isinstance(interaction.user, discord.Member):
-        await interaction.response.send_message("This command can only be used in a server.")
+    if not interaction.guild:
+        await interaction.response.send_message(
+            "This command can only be used in a server.", ephemeral=True
+        )
         return
-    
-    admin_role = discord.utils.get(interaction.user.roles, name="admin")
+
+    # Get Member object to access roles
+    member = interaction.guild.get_member(interaction.user.id)
+    if not member:
+        await interaction.response.send_message(
+            "Could not fetch your server member data.", ephemeral=True
+        )
+        return
+
+    # Check admin role
+    admin_role = discord.utils.get(member.roles, name="admin")  # check exact role name
 
     if not admin_role:
-        # Warn the person who *tried* to use the command
-        target = interaction.user
-        message = f"{target.mention} has been warned.\n**Reason:** {target.name} is a stinky doodoo head."
+        # Non-admin warning
+        message = (
+            f"{interaction.user.mention} has been warned.\n"
+            f"**Reason:** {interaction.user.name} is a stinky doodoo head."
+        )
         await interaction.response.send_message(message)
         return
 
-    # --- Normal warning behavior for admins ---
+    # Admin warning
+    target_member = interaction.guild.get_member(user.id)
+    if not target_member:
+        await interaction.response.send_message(
+            "Could not find that user in the server.", ephemeral=True
+        )
+        return
+
+    message = f"{target_member.mention} has been warned."
     if reason:
-        message = f"{user.mention} has been warned.\n**Reason:** {reason}"
-    else:
-        message = f"{user.mention} has been warned."
+        message += f"\n**Reason:** {reason}"
 
     await interaction.response.send_message(message)
-
-# --- RUN BOT ---
-bot.run(TOKEN)
-
