@@ -1,6 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+import random
 import os
 
 from bvconfig import DISCORD_TOKEN as TOKEN
@@ -83,6 +84,36 @@ async def on_member_join(member: discord.Member):
     else:
         print("⚠ " + default_role + " channel not found.")
 
+@bot.event
+async def on_message(message: discord.Message):
+    if message.author == bot.user:
+        return
+
+    if bot.user.mentioned_in(message):
+        responses = [
+            "You called?",
+            "Yes, human?",
+            "I'm busy plotting your doom, please do not disturb me"
+        ]
+        await message.channel.send(random.choice(responses))
+
+    await bot.process_commands(message)
+
+@bot.tree.command(name="say", description="not implemented yet")
+@app_commands.describe(
+    tosay = "not implemented yet"
+)
+async def say(interaction: discord.Interaction, tosay: str = None):
+    member = interaction.guild.get_member(interaction.user.id)
+    admin_role = discord.utils.get(member.roles, name=can_warn)
+
+    if not admin_role:
+        await interaction.response.send_message(
+            "This feature has not been fully implemented yet", ephemeral=True
+        )
+        return
+
+    await interaction.response.defer(ephemeral=True)
+    await interaction.channel.send(f"{tosay}")
+
 bot.run(TOKEN)
-
-
