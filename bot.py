@@ -3,7 +3,7 @@ from discord import app_commands
 from discord.ext import commands
 import os
 
-from token import DISCORD_TOKEN as TOKEN
+from discordtoken import DISCORD_TOKEN as TOKEN
 
 intents = discord.Intents.default()
 intents.members = True
@@ -61,9 +61,8 @@ async def warn(interaction: discord.Interaction, user: discord.User, reason: str
 
     await interaction.response.send_message(message)
 
-@bot.tree.command(name="doom", description="Receive a message of impending doom")
+@bot.tree.command(name="doom", description="")
 async def doom(interaction: discord.Interaction):
     await interaction.response.send_message("`I am BotVulture. I will be your doom.`")
 
 bot.run(TOKEN)
-
