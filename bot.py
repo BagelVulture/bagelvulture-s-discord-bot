@@ -3,7 +3,10 @@ from discord import app_commands
 from discord.ext import commands
 import os
 
-from discordtoken import DISCORD_TOKEN as TOKEN
+from bvconfig import DISCORD_TOKEN as TOKEN
+from bvconfig import CAN_WARN_ROLE_NAME as can_warn
+from bvconfig import ON_JOIN_GIVEN_ROLE_NAME as default_role
+from bvconfig import WELCOME_CHANNEL as announcements_channel
 
 intents = discord.Intents.default()
 intents.members = True
@@ -17,7 +20,7 @@ async def on_ready():
     await bot.tree.sync()
     print(f"✅ Logged in as {bot.user}")
 
-@bot.tree.command(name="warn", description="Warn a user with an optional reason")
+@bot.tree.command(name="warn", description="Give a user a warning")
 @app_commands.describe(
     user="The user to warn",
     reason="The reason for the warning (optional)"
@@ -37,7 +40,7 @@ async def warn(interaction: discord.Interaction, user: discord.User, reason: str
         )
         return
 
-    admin_role = discord.utils.get(member.roles, name="admin")
+    admin_role = discord.utils.get(member.roles, name=can_warn)
 
     if not admin_role:
         message = (
@@ -64,5 +67,21 @@ async def warn(interaction: discord.Interaction, user: discord.User, reason: str
 @bot.tree.command(name="doom", description="")
 async def doom(interaction: discord.Interaction):
     await interaction.response.send_message("`I am BotVulture. I will be your doom.`")
+
+@bot.event
+async def on_member_join(member: discord.Member):
+    stupid_role = discord.utils.get(member.guild.roles, name=default_role)
+    if not stupid_role:
+        print("⚠  " + default_role + " role not found in the server.")
+        return
+
+    await member.add_roles(stupid_role)
+    print(f"Made {member.name} default_role")
+
+    announcements_channel = discord.utils.get(member.guild.text_channels, name=announcements_channel)
+    if announcements_channel:
+        await announcements_channel.send(f"{member.mention} has arrived in the server!")
+    else:
+        print("⚠ " + default_role + " channel not found.")
 
 bot.run(TOKEN)
