@@ -5,7 +5,7 @@ import random
 import os
 
 from bvconfig import DISCORD_TOKEN as TOKEN
-from bvconfig import CAN_WARN_ROLE_NAME as can_warn
+from bvconfig import ADMIN_ROLE_NAME as admin_role
 from bvconfig import ON_JOIN_GIVEN_ROLE_NAME as default_role
 from bvconfig import WELCOME_CHANNEL as announcements_channel
 
@@ -40,7 +40,7 @@ async def warn(interaction: discord.Interaction, user: discord.User, reason: str
         )
         return
 
-    admin_role = discord.utils.get(member.roles, name=can_warn)
+    admin_rolee = discord.utils.get(member.roles, name=admin_role)
 
     if not admin_role:
         message = (
@@ -76,20 +76,20 @@ async def on_member_join(member: discord.Member):
         return
 
     await member.add_roles(stupid_role)
-    print(f"Made {member.name} default_role")
+    print(f"Made {member.name} {default_role}")
 
     announcements_channel = discord.utils.get(member.guild.text_channels, name=announcements_channel)
     if announcements_channel:
         await announcements_channel.send(f"{member.mention} has arrived in the server!")
     else:
-        print("⚠ " + default_role + " channel not found.")
+        print("⚠ " + announcements_channel + " channel not found.")
 
 @bot.event
 async def on_message(message: discord.Message):
     if message.author == bot.user:
         return
 
-    if bot.user.mentioned_in(message):
+    if bot.user.mentioned_in(message) and not message.mention_everyone and message.reference is None :
         responses = [
             "You called?",
             "Yes, human?",
@@ -105,15 +105,23 @@ async def on_message(message: discord.Message):
 )
 async def say(interaction: discord.Interaction, tosay: str = None):
     member = interaction.guild.get_member(interaction.user.id)
-    admin_role = discord.utils.get(member.roles, name=can_warn)
+    admin_rolee = discord.utils.get(member.roles, name=admin_role)
 
-    if not admin_role:
+    if not admin_rolee:
         await interaction.response.send_message(
             "This feature has not been fully implemented yet", ephemeral=True
         )
         return
 
-    await interaction.response.defer(ephemeral=True)
-    await interaction.channel.send(f"{tosay}")
+    await interaction.response.defer(ephemeral=False)
+
+    await interaction.channel.send(tosay)
+
+    followup_msg = await interaction.followup.send(".")
+    await followup_msg.delete()
+
+@bot.tree.command(name="ping", description="ping BotVulture")
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message("I'm awake.", ephemeral=True)
 
 bot.run(TOKEN)
