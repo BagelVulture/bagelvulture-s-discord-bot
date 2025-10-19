@@ -38,8 +38,7 @@ async def on_message(message: discord.Message):
             "bye bitch",
             "fuuuuuuuuuuuuuuuuuuuuuuuck you",
             "ready to kill!",
-            "what is my purpose in life?",
-            " "
+            "what is my purpose in life?"
         ]
         await message.channel.send(random.choice(responses))
 
@@ -50,3 +49,4 @@ async def ping(interaction: discord.Interaction):
     await interaction.response.send_message("I'm awake.", ephemeral=True)
 
 bot.run(TOKEN)
+
